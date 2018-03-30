@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test WS</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <input type="text" id="text" style="width: 70%; height: 30px;margin-top: 10px">
+    <button id="btn">Envoyer</button><br><br>
+    <div id="chat"></div>
+
+    <script type="text/javascript">
+
+        var name = prompt("quel est ton nom ?");
+        var ws = new WebSocket("ws://localhost:2222/connws/");
+
+        ws.onopen = function () {
+            console.log("Connection etablie");
+            document.getElementById("btn").addEventListener("click", function (e) {
+                e.preventDefault();
+                var data = {
+                    "texte" : document.getElementById("text").value,
+                    "nom" : name
+                };
+                ws.send(JSON.stringify(data));
+            })
+        };
+
+        ws.onmessage = function (e) {
+            document.getElementById("chat").innerHTML += e.data;
+        };
+
+        ws.onclose = function () {
+            delete ws;
+        }
+    </script>
+
+</body>
+</html>
