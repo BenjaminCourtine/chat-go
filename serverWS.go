@@ -7,11 +7,17 @@ import (
 )
 
 func main() {
- hub := []*websocket.Conn{}
+ //hub := []*websocket.Conn{}
+ m := map[int]*websocket.Conn{}
+ i := 0
 
- http.Handle("/connws/", websocket.Handler(func(ws *websocket.Conn) {
+
+    http.Handle("/connws/", websocket.Handler(func(ws *websocket.Conn) {
      data := map[string]string{}
-     hub = append(hub, ws)
+     //hub = append(hub, ws)
+     m[i] = ws
+        i++
+
 
      for {
          err := websocket.JSON.Receive(ws, &data)
@@ -19,13 +25,18 @@ func main() {
              fmt.Println(err)
              ws.Close()
              break
-     }
-     fmt.Println(data)
-     message := fmt.Sprintf("%s à dit : %s<br/>", data["nom"], data["texte"])
-     for i := range hub {
-         websocket.Message.Send(hub[i], message)
+         }
+         fmt.Println(data)
+         message := fmt.Sprintf("%s à dit : %s<br/>", data["nom"], data["texte"])
+         for i := range m {
+             //websocket.Message.Send(m[i], message)
+             err2 := websocket.Message.Send(m[i], message)
+             if err2 != nil {
+                 fmt.Println(m[i])
+             }
          }
      }
+
  }))
 
  http.ListenAndServe(":2222", nil)
